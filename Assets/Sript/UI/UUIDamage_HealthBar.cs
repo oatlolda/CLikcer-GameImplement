@@ -9,7 +9,7 @@ public class UIDamage_HealthBar : MonoBehaviour
     public TextMeshProUGUI EnemyHp;
     private void Start()
     {
-        // โชว์เลือดครั้งแรกตอนเริ่มเกม
+        
         UpdateUI();
     }
     private void OnEnable()
@@ -26,7 +26,8 @@ public class UIDamage_HealthBar : MonoBehaviour
     {
         if (enemyController != null && EnemyHp != null)
         {
-            EnemyHp.text = enemyController.EnemyHealth.ToString();
+            int currentHealth = enemyController.EnemyHealth;
+            EnemyHp.text = currentHealth.ToString();
         }
     }
 }
