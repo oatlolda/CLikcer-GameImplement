@@ -3,36 +3,25 @@ using UnityEngine;
 using UnityEngine.UI;
 
 
-public class SliderManager : Observer 
+public class SliderManager : Subject 
 {
     private PlayerController _playercontroller;
     private EnemyController _enemyController;
 
+    public Image Fill;
     public Slider slider;
     [SerializeField] private float speed;
-    public bool IsCritical= false;
+ 
     private float _sliderValue;
 
 
-    private void Start()
+    private void Awake()
     {
         _playercontroller = FindAnyObjectByType<PlayerController>();
         _enemyController = FindAnyObjectByType<EnemyController>();
-    }
-    public override void Notify(Subject subject)
-    {
-        if (!_playercontroller)
-        {
-            _playercontroller = subject as PlayerController;
-        }
        
-        if (IsCritical)
-        {
-            int KeepDamage = StatusManager.Instance.GetPlayerDamage();
-
-            IsCritical = false;
-        }
     }
+  
 
     private void Update()
     {
@@ -46,12 +35,41 @@ public class SliderManager : Observer
 
             if (slider.value > 0.5f && _playercontroller.AttackPressed())
             {
-                IsCritical = true;
+                DidCirtical();
+                
             }
             _sliderValue = 0f;
         }
         slider.value = _sliderValue;
     }
-   
+    private void OnEnable()
+    {
+        if (_playercontroller)
+        {
+            Attach(_playercontroller);
+        }
+        if (_enemyController)
+        {
+            Attach(_enemyController);
+        }
+       
+    }
+    private void OnDisable()
+    {
+        if (_playercontroller)
+        {
+            Detach(_playercontroller);
+        }
+        if (_enemyController)
+        {
+            Detach(_enemyController);
+        }
+       
+    }
+    private void DidCirtical()
+    {
+       
+        NotifyObservers();
+    }
    
 }

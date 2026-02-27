@@ -15,7 +15,7 @@ public class PlayerIdleState : MonoBehaviour,IPlayerState
     }
     public void Handle(PlayerController controller)
     {
-        Debug.Log("idle");
+        //Debug.Log("idle");
         if (!_playercontroller)
         {
             _playercontroller = controller;

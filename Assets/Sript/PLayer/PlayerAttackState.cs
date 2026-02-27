@@ -48,7 +48,7 @@ public class PlayerAttackState : MonoBehaviour,IPlayerState
     }
     private void PlayAnim()
     {
-        Debug.Log("PLayanim work");
+       // Debug.Log("PLayanim work");
     }
     
 

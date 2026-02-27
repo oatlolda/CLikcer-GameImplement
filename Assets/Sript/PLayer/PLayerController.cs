@@ -3,13 +3,13 @@ using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-public class PlayerController : Subject
+public class PlayerController : Observer
 {
     private IPlayerState _idlestate, _attackstate;
     private IPlayerState _currentState;
     private PLayerStateContext _playercontext;
 
-    private SliderManager _sliderManager;
+   
     [SerializeField] private int _damage = 5;
 
     public bool IsCritical;
@@ -24,10 +24,7 @@ public class PlayerController : Subject
             }
         }
     }
-    private void Awake()
-    {
-        _sliderManager = FindAnyObjectByType<SliderManager>();
-    }
+  
     private void Start()
     {
         _playercontext = new PLayerStateContext(this);
@@ -37,20 +34,7 @@ public class PlayerController : Subject
 
         Player_Idle();
     }
-    private void OnEnable()
-    {
-        if (_sliderManager)
-        {
-            Attach(_sliderManager);
-        }
-    }
-    private void OnDisable()
-    {
-        if (_sliderManager)
-        {
-            Detach(_sliderManager);
-        }
-    }
+   
     private void Update()
     {
 
@@ -58,11 +42,7 @@ public class PlayerController : Subject
 
         if (AttackPressed())
         {
-            IsCritical = _sliderManager.IsCritical;
-            if(IsCritical)
-            {
-                BlachFlash();
-            }
+            
             Player_Attack();
             GameEventBus.Publish(GameEventType.Attacked);
         }
@@ -94,11 +74,7 @@ public class PlayerController : Subject
                (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began);
     }
 
-    public void BlachFlash()
-    {
-        Debug.Log("BlackFlash");
-        NotifyObservers();
-    }
+   
     public void Player_Idle()
     {
         _currentState = _idlestate;
@@ -109,6 +85,14 @@ public class PlayerController : Subject
         _currentState = _attackstate;
         _playercontext.Transition(_attackstate);
     }
-  
-   
+
+    public override void Notify(Subject subject)
+    {
+        SliderManager sm = subject as SliderManager;
+        if (sm != null)
+        {
+            Debug.Log("Notify player");
+        }
+           
+    }
 }

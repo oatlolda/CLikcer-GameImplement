@@ -1,44 +1,60 @@
 using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UIDamage_HealthBar : MonoBehaviour
 {
    public EnemyController enemyController;
-
+    public Slider EnemyHealthBar;
     public TextMeshProUGUI EnemyHp;
+    public TextMeshProUGUI EnemyCount;
     private void Start()
     {
-
+        UpdateCount();
         UpdateUI();
     }
     private void OnEnable()
     {
         // ลงทะเบียนว่า "ถ้ามีการโจมตีเกิดขึ้น ให้ฉันอัปเดตตัวเลขด้วยนะ"
         GameEventBus.Subscribe(GameEventType.EnemyDamaged, UpdateUI);
+        GameEventBus.Subscribe(GameEventType.Defeated, UpdateCount);
+
         UpdateUI();
     }
 
     private void OnDisable()
     {
         GameEventBus.Unsubscribe(GameEventType.EnemyDamaged, UpdateUI);
+        GameEventBus.Unsubscribe(GameEventType.Defeated, UpdateCount);
     }
     private void UpdateUI()
     {
-        // เปลี่ยนจาก StatusManager เป็นดึงจากตัว enemyController ที่เราลากใส่ไว้ตรงๆ
-        if (enemyController != null && EnemyHp != null)
-        {
-            if(enemyController.EnemyHealth > 1000)
-            {
-                float enemyFloat = enemyController.EnemyHealth / 1000f;
+        // หา Enemy ตัวที่ active อยู่ในฉากเพียงตัวเดียวให้เจอ
+        EnemyController enemy = FindAnyObjectByType<EnemyController>();
 
+        if (enemy == null) return;
+
+        // 1. อัพเดทหลอดเลือด (ใช้ตัวแปร enemy ที่หาเจอเมื่อกี้)
+        EnemyHealthBar.value = (float)enemy.EnemyHealth / enemy._maxhealth;
+
+        // 2. อัพเดทตัวเลขเลือด (ใช้ตัวแปร enemy ตัวเดียวกัน!)
+        if (EnemyHp != null)
+        {
+            if (enemy.EnemyHealth >= 1000) // ใช้ >= เพื่อความเป๊ะ
+            {
+                float enemyFloat = enemy.EnemyHealth / 1000f;
                 EnemyHp.text = enemyFloat.ToString("F1") + "K";
             }
             else
             {
-                EnemyHp.text = enemyController.EnemyHealth.ToString();
+                EnemyHp.text = enemy.EnemyHealth.ToString();
             }
-               
         }
+    }
+    private void UpdateCount()
+    {
+        StatusManager.Instance.Updatecount();
+        EnemyCount.text = StatusManager.Instance.Enemycount.ToString()+"/8" ;
     }
 }

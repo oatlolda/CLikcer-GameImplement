@@ -2,12 +2,12 @@ using System;
 using UnityEngine;
 using  UnityEngine.Pool;
 
-public class EnemyController : MonoBehaviour
+public class EnemyController : Observer
 {
     private MeshFilter targetMeshFilter;
     public Mesh[] enemyModel;
     public int _maxhealth = 100;
-    public int _enemyhealth;
+    private int _enemyhealth;
     private int _currentIndexModel = 0;
 
     public int EnemyHealth { get { return _enemyhealth; } set { _enemyhealth = value; } }
@@ -41,29 +41,61 @@ public class EnemyController : MonoBehaviour
             targetMeshFilter.mesh = enemyModel[index];
         }
     }
+
     private void GotDamage()
     {
-        
-        Debug.Log("GotDamage work");
-        _enemyhealth -= StatusManager.Instance.GetPlayerDamage();
-        _enemyhealth = Mathf.Max(_enemyhealth, 0);
-        Debug.Log(EnemyHealth);
+        TakeDamage(StatusManager.Instance.GetPlayerDamage());
+    }
+    private void Death()
+    {
+        _currentIndexModel++;
+
+        // แก้บั๊ก Index เกิน: ใช้ >= เพราะ Array เริ่มที่ 0
+        if (_currentIndexModel >= enemyModel.Length)
+        {
+            _currentIndexModel = 0;
+        }
+
+        // เพิ่มความยากและรีเซ็ตเลือด
+        _maxhealth += (int)(_maxhealth * 0.1f);
+        _enemyhealth = _maxhealth;
+
+        // เปลี่ยนรูปทรงมอนสเตอร์
+        ChangeMesh(_currentIndexModel);
+
+        // แจ้งระบบว่าชนะตัวเดิมแล้ว
+        GameEventBus.Publish(GameEventType.Defeated);
+       
+
+        Debug.Log($"Monster Died! Next Mesh Index: {_currentIndexModel}");
+    }
+    public void TakeDamage(int amount)
+    {
+
+        if (_enemyhealth <= 0) return;
+
+        // ลดเลือดแบบกันติดลบ
+        _enemyhealth = Mathf.Max(0, _enemyhealth - amount);
+
+        // แจ้ง UI อัพเดทหลอดเลือด
+        GameEventBus.Publish(GameEventType.EnemyDamaged);
+
+        // เช็คความตายตรงนี้ที่เดียว!
         if (_enemyhealth <= 0)
         {
-            _currentIndexModel++;
-            _maxhealth += (int)(_maxhealth * 0.1f);
-            if (_currentIndexModel > enemyModel.Length)
-            {
-                _currentIndexModel = 0;
-            }
-           Debug.Log(_currentIndexModel);
-            ChangeMesh(_currentIndexModel);
+            Death();
+        }
+    }
 
-            GameEventBus.Publish(GameEventType.Defeated);
-            _enemyhealth = _maxhealth;
+    public override void Notify(Subject subject)
+    {
+        SliderManager sm = subject as SliderManager;
+        if (sm != null)
+        {
+            TakeDamage(StatusManager.Instance.GetCriticalDamage());
+
+
 
         }
-        GameEventBus.Publish(GameEventType.EnemyDamaged);
     }
-   
 }
