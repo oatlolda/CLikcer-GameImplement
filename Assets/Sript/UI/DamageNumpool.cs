@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.Pool;
 
-public class DamageNumpool : MonoBehaviour
+public class DamageNumpool : Observer
 {
     public int Maxpoolsize = 10;
     public int stackdefalut = 10;
@@ -55,6 +55,15 @@ public class DamageNumpool : MonoBehaviour
         var num = Pool.Get();
         num.transform.position = Random.insideUnitSphere * 2.5f;
     }
+    private void SpawnCriticalChecked(SliderManager sm)
+    {
+        var num = Pool.Get();
+        num.transform.position = Random.insideUnitSphere * 2.5f;
+
+        // เช็คจาก Slider จังหวะนั้นเลยว่า > 0.7 หรือไม่
+        bool isCrit = sm.slider.value > 0.7f;
+        num.UpdateDamage(isCrit);
+    }
 
     private void OnEnable()
     {
@@ -63,5 +72,19 @@ public class DamageNumpool : MonoBehaviour
     private void OnDisable()
     {
         GameEventBus.Unsubscribe(GameEventType.Attacked, SpawNumber);
+    }
+    private void Start()
+    {
+        SliderManager sm = FindAnyObjectByType<SliderManager>();
+        if (sm != null) sm.Attach(this);
+    }
+
+    public override void Notify(Subject subject)
+    {
+        if (subject is SliderManager sm)
+        {
+            // เมื่อ Slider บอกว่ามีการโจมตี ให้ Spawn เลขออกมา
+            SpawnCriticalChecked(sm);
+        }
     }
 }

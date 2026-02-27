@@ -5,20 +5,24 @@ using UnityEngine.Pool;
 public class Damagenumber : MonoBehaviour
 {
     private TextMeshPro _damageNum;
-    public IObjectPool<Damagenumber> Pool {  get; set; }
-   
+    public IObjectPool<Damagenumber> Pool { get; set; }
+    private DamageNumpool _damagepool;
     private Animator _animator;
     private static readonly int fadeStateHash = Animator.StringToHash("Fade");
 
     private void OnEnable()
     {
         if (_damageNum == null) _damageNum = GetComponentInChildren<TextMeshPro>();
-        UpdateDamage();
+        _damageNum.color = Color.red;
+        _damageNum.text = StatusManager.Instance.GetPlayerDamage().ToString();
+        _damageNum.fontSize = 5;
     }
     private void Start()
     {
         _animator = GetComponentInChildren<Animator>();
-       
+        _damagepool= FindAnyObjectByType<DamageNumpool>();
+        if (_damagepool != null) Debug.Log("Damagepool");
+
     }
     private void Update()
     {
@@ -31,13 +35,23 @@ public class Damagenumber : MonoBehaviour
     }
     private void ReturnPool()
     {
-       
+
         Pool.Release(this);
     }
-    private void UpdateDamage()
+    public void UpdateDamage(bool isCritical)
     {
-        _damageNum.text = StatusManager.Instance.GetPlayerDamage().ToString();
+        if (isCritical)
+        {
+            _damageNum.color = Color.white; // คริติคอลใช้สีแดงจะเด่นกว่า
+            _damageNum.text = StatusManager.Instance.GetCriticalDamage().ToString();
+            _damageNum.fontSize = 8; // ตัวใหญ่ขึ้น
+        }
+        else
+        {
+            _damageNum.color = Color.red;
+            _damageNum.text = StatusManager.Instance.GetPlayerDamage().ToString();
+            _damageNum.fontSize = 5;
+        }
     }
-   
-   
+
 }
