@@ -19,14 +19,16 @@ public class UIDamage_HealthBar : MonoBehaviour
         // ลงทะเบียนว่า "ถ้ามีการโจมตีเกิดขึ้น ให้ฉันอัปเดตตัวเลขด้วยนะ"
         GameEventBus.Subscribe(GameEventType.EnemyDamaged, UpdateUI);
         GameEventBus.Subscribe(GameEventType.Defeated, UpdateCount);
-
+        GameEventBus.Subscribe(GameEventType.BossState, BossState);
         UpdateUI();
+
     }
 
     private void OnDisable()
     {
         GameEventBus.Unsubscribe(GameEventType.EnemyDamaged, UpdateUI);
         GameEventBus.Unsubscribe(GameEventType.Defeated, UpdateCount);
+        GameEventBus.Unsubscribe(GameEventType.BossState, BossState);
     }
     private void UpdateUI()
     {
@@ -48,13 +50,22 @@ public class UIDamage_HealthBar : MonoBehaviour
             }
             else
             {
-                EnemyHp.text = enemy.EnemyHealth.ToString();
+                EnemyHp.text = enemy.EnemyHealth.ToString("F0");
             }
         }
     }
     private void UpdateCount()
     {
         StatusManager.Instance.Updatecount();
-        EnemyCount.text = StatusManager.Instance.Enemycount.ToString()+"/8" ;
+        if (StatusManager.Instance.Enemycount != 0)
+        {
+            EnemyCount.text = StatusManager.Instance.Enemycount.ToString() + "/8";
+        }
     }
+    private void BossState()
+    {
+        EnemyCount.text = "Boss Stage";
+      
+    }
+
 }

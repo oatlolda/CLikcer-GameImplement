@@ -6,10 +6,11 @@ using UnityEngine.UI;
 public class Companionscript : MonoBehaviour
 {
     [SerializeField] private float DelayAttck;
-    [SerializeField]private int _damage =2;
-    public int Damage { get { return _damage; } set { _damage = value; } }
+    [SerializeField]private float _damage =2;
+    public float Damage { get { return _damage; } set { _damage = value; } }
     private EnemyController enemyController;
 
+    [SerializeField] private int StarterPrice =20;
     public Button button;//companion upgrade
     public TextMeshProUGUI HUD;
     public TextMeshProUGUI CoinNeed;
@@ -23,11 +24,16 @@ public class Companionscript : MonoBehaviour
     {
        
         mesh = GetComponent<MeshRenderer>();
-        if (_upgradeneed == 10) mesh.enabled = false;
-        else if (_upgradeneed != 10 ) mesh.enabled = true;
+       
        
         UpdateUI();
         UpdateCoin();
+        if (_upgradeneed == StarterPrice)
+        {
+            mesh.enabled = false;
+            HUD.text = "";
+        }
+        else if (_upgradeneed != StarterPrice) mesh.enabled = true;
     }
     private void Update()
     {
@@ -35,7 +41,7 @@ public class Companionscript : MonoBehaviour
         UpdateCoin();
     }
 
-    private IEnumerator Autoattack()
+    protected virtual IEnumerator Autoattack()
     {
         while (true) // ใช้ Loop แทนการเรียกฟังก์ชันซ้อนฟังก์ชัน
         {
@@ -70,9 +76,10 @@ public class Companionscript : MonoBehaviour
     private void UpdateUI()
     {
         UpdateCoin();
+
         if (HUD != null)
         {
-            HUD.text = "DMG "+Damage.ToString();
+            HUD.text = "DMG " + Damage.ToString("F1");
         }
         if (CoinNeed != null)
         {
@@ -81,10 +88,14 @@ public class Companionscript : MonoBehaviour
     }
     public void Upgrade()
     {
-        UpdateCoin();
-        if (Checkcoin >= _upgradeneed) // ป้องกันการกดซ้ำถ้าเงินไม่พอจริงๆ
+        // 1. ดึงเงินล่าสุดมาเช็คก่อนกด
+        Checkcoin = StatusManager.Instance.GetCoin();
+
+        if (Checkcoin >= _upgradeneed)
         {
+            // 2. หักเงินทันที (หักจากราคาปัจจุบันก่อนเพิ่มราคา)
             StatusManager.Instance.SetCoin(Checkcoin - _upgradeneed);
+
             if (!isSpawned)
             {
                 isSpawned = true;
@@ -93,14 +104,17 @@ public class Companionscript : MonoBehaviour
             }
             else
             {
-                Damage = (int)(Damage + (Damage * 0.2f));
+                // แก้ไข: ใช้ CeilToInt เพื่อให้ดาเมจเพิ่มขึ้นอย่างน้อย 1 เสมอ
+                float bonus = Damage * 0.3f;
+                Damage += bonus;
+                Debug.Log("Upgrade Success! New Damage: " + Damage);
             }
-          
-            
-            _upgradeneed = (int)(_upgradeneed + (_upgradeneed * 0.3f));
-            
+
+            // 3. ค่อยเพิ่มราคาสำหรับครั้งถัดไป
+            _upgradeneed = (int)(_upgradeneed + (_upgradeneed * 0.22f));
+
+            // 4. อัปเดต UI ทันที
             UpdateUI();
         }
-            
     }
 }

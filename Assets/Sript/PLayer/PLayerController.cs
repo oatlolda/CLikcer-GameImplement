@@ -10,10 +10,10 @@ public class PlayerController : Observer
     private PLayerStateContext _playercontext;
 
    
-    [SerializeField] private int _damage = 5;
+    [SerializeField] private float _damage = 5;
 
     public bool IsCritical;
-    public int Damage
+    public float Damage
     {
         get { return _damage; }
         set

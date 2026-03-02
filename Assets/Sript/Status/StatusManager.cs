@@ -1,3 +1,4 @@
+using System.Data;
 using UnityEngine;
 
 public class StatusManager : Singletron<StatusManager>
@@ -12,7 +13,7 @@ public class StatusManager : Singletron<StatusManager>
     }
 
    
-    public  void SetPlayerDamage(int damage)
+    public  void SetPlayerDamage(float damage)
     {
         if (_playerController == null)
         {
@@ -24,7 +25,7 @@ public class StatusManager : Singletron<StatusManager>
             
         }
     }
-    public int GetPlayerDamage()
+    public float GetPlayerDamage()
     {
         if (_playerController == null)
         {
@@ -39,7 +40,7 @@ public class StatusManager : Singletron<StatusManager>
         Debug.LogError("StatusManager: ‰¡Ëæ∫ PlayerController „π©“°!");
         return 0;
     }
-    public  void SetEnemyHealyh(int Health)
+    public  void SetEnemyHealyh(float Health)
     {
         if (_enemyController == null)
         {
@@ -51,7 +52,7 @@ public class StatusManager : Singletron<StatusManager>
 
         }
     }
-    public int GetEnemyHealth()
+    public float GetEnemyHealth()
     {
         if (_enemyController == null)
         {
@@ -66,11 +67,38 @@ public class StatusManager : Singletron<StatusManager>
         Debug.LogError("StatusManager: ‰¡Ëæ∫ EnemyController „π©“°!");
         return 0;
     }
-    public int GetCriticalDamage()
+    public float GetEnemyMaxHealth()
     {
+        if (_enemyController == null)
+        {
+            _enemyController = Object.FindAnyObjectByType<EnemyController>();
+        }
+
+        // ‡™Á§‡º◊ËÕ°√≥’À“‰¡Ë‡®Õ®√‘ßÊ „π©“°
+        if (_enemyController != null)
+        {
+            return _enemyController._maxhealth;
+        }
        
-        
-        int Critical = GetPlayerDamage();
+        return 0;
+    }
+    public void SetEnemyMaxHealth(float Health)
+    {
+        if (_enemyController == null)
+        {
+            _enemyController = FindAnyObjectByType<EnemyController>();
+        }
+        if (_enemyController != null)
+        {
+            _enemyController._maxhealth = Health;
+
+        }
+    }
+    public float GetCriticalDamage()
+    {
+
+
+        float Critical = GetPlayerDamage();
         Critical += (int)(Critical*1.5f);
         Debug.Log("Critical "+Critical);
         return Critical;
@@ -81,9 +109,17 @@ public class StatusManager : Singletron<StatusManager>
         Enemycount++;
         if (Enemycount > 8)
         {
-        Enemycount = 1;            
+           
+          
+            Enemycount = 0;
+            GameEventBus.Publish(GameEventType.BossState);
+
         }
-       ;
+        else
+        {
+
+        }
+            ;
     }
     public int GetCoin()
     {

@@ -5,7 +5,7 @@ using UnityEngine.Events;
 
 public enum GameEventType
 {
-    Attacked, EnemyDamaged, Defeated
+    Attacked, EnemyDamaged, Defeated , BossState,BossDefeated
 }
 public class GameEventBus : MonoBehaviour
 {

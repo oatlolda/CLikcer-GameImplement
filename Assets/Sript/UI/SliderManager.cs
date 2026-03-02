@@ -8,7 +8,9 @@ public class SliderManager : Subject
 {
     private PlayerController _playercontroller;
     private EnemyController _enemyController;
-   
+
+    [SerializeField] private float slidevaluseneed = 0.7f;
+
     public Image Fill;
     public Slider slider;
     [SerializeField] private float speed;
@@ -36,7 +38,7 @@ public class SliderManager : Subject
         }
 
 
-        if (_sliderValue < 0.7f)
+        if (_sliderValue < slidevaluseneed)
         {
             //
             
@@ -49,7 +51,7 @@ public class SliderManager : Subject
         if (_playercontroller.AttackPressed())
         {
 
-            if (slider.value > 0.7f && _playercontroller.AttackPressed())
+            if (slider.value > slidevaluseneed && _playercontroller.AttackPressed())
             {
                 DidCirtical();
                 
