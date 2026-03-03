@@ -47,7 +47,7 @@ public class UpgradeManager : MonoBehaviour
         int damageToSend = Mathf.RoundToInt(_internalDamage);
 
         StatusManager.Instance.SetCoin(Checkcoin - _coinupgrade);
-        _coinupgrade = (int)(_coinupgrade + (_coinupgrade * 0.5f));
+        _coinupgrade = (int)(_coinupgrade + (_coinupgrade * 0.2f));
         StatusManager.Instance.SetPlayerDamage(damageToSend);
         UpdateUI();
         

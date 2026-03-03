@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Rendering;
 using UnityEngine.UI;
 public class PlayerController : Observer
 {
@@ -9,7 +10,8 @@ public class PlayerController : Observer
     private IPlayerState _currentState;
     private PLayerStateContext _playercontext;
 
-   
+    [SerializeField] private Switchcam _cameraSwitcher;
+
     [SerializeField] private float _damage = 5;
 
     public bool IsCritical;
@@ -28,7 +30,7 @@ public class PlayerController : Observer
     private void Start()
     {
         _playercontext = new PLayerStateContext(this);
-
+        
         _idlestate = gameObject.AddComponent<PlayerIdleState>();
         _attackstate = gameObject.AddComponent<PlayerAttackState>();
 
@@ -37,22 +39,14 @@ public class PlayerController : Observer
    
     private void Update()
     {
-
-
-
         if (AttackPressed())
         {
-            
+            // สั่งเปลี่ยนเป็น Attack State
             Player_Attack();
+
+            // ส่ง Event ดาเมจ
             GameEventBus.Publish(GameEventType.Attacked);
         }
-        /*else
-        {
-            if (_currentState != _idlestate)
-            {
-                Player_Idle();
-            }
-        }*/
     }
     public bool AttackPressed()
     {
@@ -79,16 +73,18 @@ public class PlayerController : Observer
     {
         _currentState = _idlestate;
         _playercontext.Transition(_idlestate);
+        _cameraSwitcher.SwitchToNormal();
     }
     public void Player_Attack()
     {
         _currentState = _attackstate;
         _playercontext.Transition(_attackstate);
+        _cameraSwitcher.SwitchToCombat();
     }
 
     public override void Notify(Subject subject)
     {
-        SliderManager sm = subject as SliderManager;
+        PlayerAttackState sm = subject as PlayerAttackState;
         if (sm != null)
         {
             Debug.Log("Notify player");

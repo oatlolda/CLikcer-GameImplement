@@ -1,55 +1,93 @@
 using UnityEngine;
+using static UnityEngine.UI.Image;
 
-public class PlayerAttackState : MonoBehaviour,IPlayerState
+public class PlayerAttackState : Subject,IPlayerState
 {
     private PlayerController _playercontroller;
     private Animator _animator;
-
+    [SerializeField] private float step = 0.1f;
+    private EnemyController _enemyController;
+    
+    [SerializeField] private float attackHangTime = 0.5f; // ระยะเวลาที่จะค้างอยู่ในท่าสู้ (ปรับได้ตามความชอบ)
+    private float _lastAttackTime;
 
     private static readonly int attackStateHash = Animator.StringToHash("Attack");
     void Start()
     {
-        _animator = GetComponent<Animator>();
+      
+        _animator = GetComponentInChildren<Animator>();
+       
     }
     public void Handle(PlayerController controller)
     {
-       if(!_playercontroller)
+        int random = Random.Range(1, 5);
+        Debug.Log("random = "+random);
+        SoundManager.Instance.PlaySound();
+        if (random == 1)
+        {
+            DidCirtical();
+        }
+        if (!_playercontroller)
         {
             _playercontroller = controller; 
         }
         if (_animator == null)
         {
-            _animator = controller.GetComponent<Animator>();
+            _animator = controller.GetComponentInChildren<Animator>();
         }
-        if (_animator != null)
-        {
-            _animator.Play(attackStateHash);
-        }
-       
+        _lastAttackTime = Time.time;
+
+        
+        _animator.Play(attackStateHash);
+
     }
     private void OnEnable()
     {
-        GameEventBus.Subscribe(GameEventType.Attacked, PlayAnim);
+        if (_playercontroller)
+        {
+            Attach(_playercontroller);
+        }
+        if (_enemyController)
+        {
+            Attach(_enemyController);
+        }
+
+
     }
     private void OnDisable()
     {
-        GameEventBus.Unsubscribe(GameEventType.Attacked, PlayAnim);
-    }
-    private void Update()
-    {
-        // เช็คว่าถ้าเล่นจบแล้ว ให้สั่ง Controller เปลี่ยน State
-        AnimatorStateInfo stateInfo = _animator.GetCurrentAnimatorStateInfo(0);
-
-        if (stateInfo.shortNameHash == attackStateHash && stateInfo.normalizedTime >= 0.9f)
+        if (_playercontroller)
         {
-            // อ้างอิงกลับไปที่ Controller เพื่อสั่งเปลี่ยนเป็น Idle
-            GetComponent<PlayerController>().Player_Idle();
+            Detach(_playercontroller);
         }
+        if (_enemyController)
+        {
+            Detach(_enemyController);
+        }
+
     }
-    private void PlayAnim()
+    private void DidCirtical()
     {
-       // Debug.Log("PLayanim work");
+        SoundManager.Instance.Playonetime();
+        NotifyObservers();
     }
-    
+
+    private void Update()
+     {
+        if (_playercontroller == null || _animator == null) return;
+
+        // ถ้าเวลาปัจจุบัน ห่างจากเวลาที่คลิกครั้งสุดท้าย เกินค่าที่กำหนด (เช่น 0.5 วินาที)
+        if (Time.time - _lastAttackTime > attackHangTime)
+        {
+            // เช็คเพิ่มอีกนิดว่าแอนิเมชั่นฟันจบหรือยัง (เพื่อความเนียน)
+            AnimatorStateInfo stateInfo = _animator.GetCurrentAnimatorStateInfo(0);
+            if (stateInfo.normalizedTime >= 0.1f)
+            {
+                _playercontroller.Player_Idle();
+            }
+        }
+
+    }
+  
 
 }

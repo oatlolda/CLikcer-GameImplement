@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class UIDamage_HealthBar : MonoBehaviour
 {
+
    public EnemyController enemyController;
     public Slider EnemyHealthBar;
     public TextMeshProUGUI EnemyHp;
@@ -32,40 +33,51 @@ public class UIDamage_HealthBar : MonoBehaviour
     }
     private void UpdateUI()
     {
-        // หา Enemy ตัวที่ active อยู่ในฉากเพียงตัวเดียวให้เจอ
-        EnemyController enemy = FindAnyObjectByType<EnemyController>();
+        if (enemyController == null) return;
 
-        if (enemy == null) return;
+        if (enemyController._maxhealth <= 0) return;
 
-        // 1. อัพเดทหลอดเลือด (ใช้ตัวแปร enemy ที่หาเจอเมื่อกี้)
-        EnemyHealthBar.value = (float)enemy.EnemyHealth / enemy._maxhealth;
+        float healthRatio = enemyController.EnemyHealth / enemyController._maxhealth;
+        EnemyHealthBar.value = Mathf.Clamp01(healthRatio);
 
-        // 2. อัพเดทตัวเลขเลือด (ใช้ตัวแปร enemy ตัวเดียวกัน!)
         if (EnemyHp != null)
         {
-            if (enemy.EnemyHealth >= 1000) // ใช้ >= เพื่อความเป๊ะ
+            if (enemyController.EnemyHealth >= 1000)
             {
-                float enemyFloat = enemy.EnemyHealth / 1000f;
-                EnemyHp.text = enemyFloat.ToString("F1") + "K";
+                EnemyHp.text = (enemyController.EnemyHealth / 1000f).ToString("F1") + "K";
             }
             else
             {
-                EnemyHp.text = enemy.EnemyHealth.ToString("F0");
+                EnemyHp.text = enemyController.EnemyHealth.ToString("F0");
             }
         }
     }
     private void UpdateCount()
     {
         StatusManager.Instance.Updatecount();
-        if (StatusManager.Instance.Enemycount != 0)
+
+        int currentCount = StatusManager.Instance.Enemycount;
+
+        if (currentCount == 0)
         {
-            EnemyCount.text = StatusManager.Instance.Enemycount.ToString() + "/8";
+            EnemyCount.text = "Boss Stage";
         }
+        else
+        {
+            EnemyCount.text = currentCount.ToString() + "/8";
+        }
+
+        // --- เพิ่มบรรทัดนี้ ---
+        // บังคับอัปเดต UI ทันทีหลังจากนับแต้มเสร็จ เพื่อดึงเลือดมอนตัวใหม่มาโชว์
+        UpdateUI();
     }
     private void BossState()
     {
         EnemyCount.text = "Boss Stage";
-      
+
+        // ใช้ Invoke หรือรอเล็กน้อยเพื่อให้มั่นใจว่า EnemyController เซ็ตค่า BossHp เสร็จแล้วจริงๆ
+        Invoke("UpdateUI", 0.05f);
+
     }
 
 }

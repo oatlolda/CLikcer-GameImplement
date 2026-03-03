@@ -109,18 +109,11 @@ public class StatusManager : Singletron<StatusManager>
         Enemycount++;
         if (Enemycount > 8)
         {
-           
-          
             Enemycount = 0;
             GameEventBus.Publish(GameEventType.BossState);
-
         }
-        else
-        {
-
-        }
-            ;
     }
+   
     public int GetCoin()
     {
 

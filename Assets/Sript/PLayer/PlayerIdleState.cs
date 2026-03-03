@@ -1,8 +1,9 @@
+using TMPro;
 using UnityEngine;
 
 public class PlayerIdleState : MonoBehaviour,IPlayerState
 {
-
+    
     private PlayerController _playercontroller;
     private Animator _animator;
     
@@ -15,7 +16,7 @@ public class PlayerIdleState : MonoBehaviour,IPlayerState
     }
     public void Handle(PlayerController controller)
     {
-        //Debug.Log("idle");
+        SoundManager.Instance.StopSound();
         if (!_playercontroller)
         {
             _playercontroller = controller;
@@ -23,12 +24,13 @@ public class PlayerIdleState : MonoBehaviour,IPlayerState
        
         if (_animator == null)
         {
-            _animator = controller.GetComponent<Animator>();
+            _animator = controller.GetComponentInChildren<Animator>();
         }
 
         // เมื่อมั่นใจว่ามี _animator แน่นอนแล้วค่อยสั่งเล่น
         if (_animator != null)
         {
+            _animator.speed = 1;
             _animator.Play(idleStateHash);
         }
     }

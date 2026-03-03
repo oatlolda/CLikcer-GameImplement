@@ -46,23 +46,27 @@ public class DamageNumpool : Observer
 
     private void OnDestroyPoolObject(Damagenumber num)
     {
-        Destroy(num.gameObject); // ลบทิ้งจริงๆ ถ้า Pool เต็มแล้ว
+        if (num != null && num.gameObject != null)
+        {
+            Destroy(num.gameObject);
+        }
     }
 
   
     public void SpawNumber()
     {
         var num = Pool.Get();
-        num.transform.position = Random.insideUnitSphere * 2.5f;
+        Vector3 offset = Random.insideUnitSphere * 0.5f;
+        num.transform.position = transform.position + offset;
     }
-    private void SpawnCriticalChecked(SliderManager sm)
+    private void SpawnCriticalChecked(PlayerAttackState sm)
     {
         var num = Pool.Get();
-        num.transform.position = Random.insideUnitSphere * 2.5f;
+        Vector3 offset = Random.insideUnitSphere * 0.5f;
 
-        // เช็คจาก Slider จังหวะนั้นเลยว่า > 0.7 หรือไม่
-        bool isCrit = sm.slider.value > 0.7f;
-        num.UpdateDamage(isCrit);
+        num.transform.position = transform.position + offset;
+
+        num.UpdateDamage(true);
     }
 
     private void OnEnable()
@@ -75,13 +79,13 @@ public class DamageNumpool : Observer
     }
     private void Start()
     {
-        SliderManager sm = FindAnyObjectByType<SliderManager>();
+        PlayerAttackState sm = FindAnyObjectByType<PlayerAttackState>();
         if (sm != null) sm.Attach(this);
     }
 
     public override void Notify(Subject subject)
     {
-        if (subject is SliderManager sm)
+        if (subject is PlayerAttackState sm)
         {
             // เมื่อ Slider บอกว่ามีการโจมตี ให้ Spawn เลขออกมา
             SpawnCriticalChecked(sm);
