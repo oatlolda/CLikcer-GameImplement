@@ -1,5 +1,5 @@
 using System.Collections;
-using UnityEditor.Experimental.GraphView;
+
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Rendering;
@@ -90,5 +90,17 @@ public class PlayerController : Observer
             Debug.Log("Notify player");
         }
            
+    }
+    public PlayerSaveData GetData()
+    {
+        return new PlayerSaveData
+        {
+            playerDamage = _damage
+        };
+
+    }
+    public void LoadData(PlayerSaveData data)
+    {
+        _damage = data.playerDamage;
     }
 }

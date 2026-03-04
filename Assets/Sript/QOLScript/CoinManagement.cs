@@ -58,5 +58,18 @@ public class CoinManagement : MonoBehaviour
         }
        
     }
-    
+    public CoinData GetData()
+    {
+        return new CoinData
+        {
+            coin = _coin,
+            DropcoinData = _dropcoin
+        };
+
+    }
+    public void LoadData(CoinData data)
+    {
+       _dropcoin = data.DropcoinData;
+        _coin = data.coin;
+    }
 }

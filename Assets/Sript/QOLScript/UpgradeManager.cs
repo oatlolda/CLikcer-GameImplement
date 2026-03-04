@@ -11,10 +11,11 @@ public class UpgradeManager : MonoBehaviour
     private int upgradecount = 0;
     private float bonusUpgrade= 10f;
     public Button button;
+    public Button buttonAllIn;
     private int _coinupgrade= 10;
 
     private int Checkcoin;
-    private bool Canupgrade;
+ 
     private void Start()
     {
         _internalDamage = StatusManager.Instance.GetPlayerDamage();
@@ -52,31 +53,42 @@ public class UpgradeManager : MonoBehaviour
         UpdateUI();
         
     }
+    public void Allin()
+    {
+        Checkcoin = StatusManager.Instance.GetCoin();
+        while (Checkcoin > _coinupgrade)
+        {
+            UpgradePlayerDamage();
+        }
+        UpdateCoin();
+    }
 
     private void UpdateCoin()
     {
         Checkcoin= StatusManager.Instance.GetCoin();
         if (Checkcoin >= _coinupgrade) 
         {
-            Canupgrade = true;
+            buttonAllIn.interactable = true;
             button.interactable = true;
         }
         else
         {
-            Canupgrade = false;
+            buttonAllIn.interactable = false;
             button.interactable = false;
         }
+       
     }
     private void UpdateUI()
     {
         UpdateCoin();
         if (PlayerDamageHUD != null)
         {
-            PlayerDamageHUD.text = StatusManager.Instance.GetPlayerDamage().ToString();
+            PlayerDamageHUD.text = "Dps:\n" +StatusManager.Instance.GetPlayerDamage().ToString();
         }
         if (CoinNeed != null)
         {
             CoinNeed.text =_coinupgrade.ToString();
         }
+        SaveData.Instance.SaveGame();
     }
 }

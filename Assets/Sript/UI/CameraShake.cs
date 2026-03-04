@@ -35,7 +35,8 @@ public class CameraShake : Observer
     {
         if (subject is PlayerAttackState)
         {
-            noise.AmplitudeGain = 5f;
+            amplitude = 50f;
+           
         }
        
     }

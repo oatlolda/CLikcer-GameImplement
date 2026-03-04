@@ -1,4 +1,5 @@
 using TMPro;
+
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -6,36 +7,38 @@ public class Damagenumber : MonoBehaviour
 {
     private TextMeshPro _damageNum;
     public IObjectPool<Damagenumber> Pool { get; set; }
-    private DamageNumpool _damagepool;
+   
     private Animator _animator;
     private static readonly int fadeStateHash = Animator.StringToHash("Fade");
-
+    private bool _returned = false;
     private void OnEnable()
     {
         if (_damageNum == null) _damageNum = GetComponentInChildren<TextMeshPro>();
         _damageNum.color = Color.red;
         _damageNum.text = StatusManager.Instance.GetPlayerDamage().ToString();
         _damageNum.fontSize = 5;
+        _returned = false;
     }
     private void Start()
     {
         _animator = GetComponentInChildren<Animator>();
-        _damagepool= FindAnyObjectByType<DamageNumpool>();
-        if (_damagepool != null) Debug.Log("Damagepool");
+       
 
     }
     private void Update()
     {
         AnimatorStateInfo stateInfo = _animator.GetCurrentAnimatorStateInfo(0);
 
-        if (stateInfo.shortNameHash == fadeStateHash && stateInfo.normalizedTime >= 0.9f)
+        if (!_returned &&
+            stateInfo.shortNameHash == fadeStateHash &&
+            stateInfo.normalizedTime >= 0.9f)
         {
+            _returned = true;
             ReturnPool();
         }
     }
-    private void ReturnPool()
+    public void ReturnPool()
     {
-
         Pool.Release(this);
     }
     public void UpdateDamage(bool isCritical)
@@ -53,5 +56,6 @@ public class Damagenumber : MonoBehaviour
             _damageNum.fontSize = 5;
         }
     }
+    
 
 }

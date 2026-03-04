@@ -77,18 +77,18 @@ public class DamageNumpool : Observer
     {
         GameEventBus.Unsubscribe(GameEventType.Attacked, SpawNumber);
     }
-    private void Start()
-    {
-        PlayerAttackState sm = FindAnyObjectByType<PlayerAttackState>();
-        if (sm != null) sm.Attach(this);
-    }
+    
 
     public override void Notify(Subject subject)
     {
-        if (subject is PlayerAttackState sm)
+        if (subject is PlayerAttackState attackState)
         {
-            // เมื่อ Slider บอกว่ามีการโจมตี ให้ Spawn เลขออกมา
-            SpawnCriticalChecked(sm);
+            var num = Pool.Get();
+
+            Vector3 offset = Random.insideUnitSphere * 0.5f;
+            num.transform.position = transform.position + offset;
+
+            num.UpdateDamage(attackState.IsCritical);
         }
     }
 }

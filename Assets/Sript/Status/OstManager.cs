@@ -5,12 +5,23 @@ public class OstManager : MonoBehaviour
     [SerializeField] private AudioClip[] _ost;
    private AudioSource _audio;
     private int random;
+    [SerializeField] private int selectsong=0;
     void Start()
     {
-        random = Random.Range(1, _ost.Length);
         _audio = GetComponent<AudioSource>();
+        if (selectsong > _ost.Length)
+        {
+            random = Random.Range(1, _ost.Length);
+            
 
-        _audio.clip = _ost[random];
+            _audio.clip = _ost[random];
+          
+        }
+        else
+        {
+            _audio.clip = _ost[selectsong];
+            
+        }
         _audio.Play();
 
     }

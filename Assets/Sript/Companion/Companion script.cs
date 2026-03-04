@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class Companionscript : MonoBehaviour
 {
+    public int companionID;
     [SerializeField] private float DelayAttck;
     [SerializeField]private float _damage =2;
     public float Damage { get { return _damage; } set { _damage = value; } }
@@ -12,35 +13,39 @@ public class Companionscript : MonoBehaviour
 
     [SerializeField] private int Staterprice;
     public Button button;//companion upgrade
+    public Button AllinBtn;
     public TextMeshProUGUI HUD;
     public TextMeshProUGUI CoinNeed;
     private bool isSpawned = false;
     private MeshRenderer mesh;
     private Coroutine attackRoutine;
-    private bool Canupgrade = false;
+    
     private int Checkcoin;
     private int _upgradeneed=10;
     private int Upgradecount = 0;
 
     float bonus = 10;
+
+    private void Awake()
+    {
+        mesh = GetComponentInChildren<MeshRenderer>(true);
+    }
     private void Start()
     {
-       
-        mesh = GetComponent<MeshRenderer>();
 
-
-        
+        if (mesh == null)
+            mesh = GetComponentInChildren<MeshRenderer>(true);
 
         // ตรวจสอบสถานะการเกิด: ถ้ายังไม่เกิด ให้ซ่อน Mesh ทันที
         if (!isSpawned)
         {
             _upgradeneed = Staterprice;
-            mesh.enabled = false;
+            mesh.gameObject.SetActive(false);
             if (HUD != null) HUD.text = "";
         }
         else
         {
-            mesh.enabled = true;
+            mesh.gameObject.SetActive(true);
         }
         UpdateUI();
         UpdateCoin();
@@ -80,12 +85,12 @@ public class Companionscript : MonoBehaviour
         Debug.Log($"Companion Check: Coin={Checkcoin}, Need={_upgradeneed}");
         if (Checkcoin >= _upgradeneed)
         {
-            Canupgrade = true;
+            AllinBtn.interactable = true;
             button.interactable = true;
         }
         else
         {
-            Canupgrade = false;
+            AllinBtn.interactable = false;
             button.interactable = false;
         }
     }
@@ -95,27 +100,29 @@ public class Companionscript : MonoBehaviour
 
         if (HUD != null)
         {
-            HUD.text = "DMG " + Damage.ToString("F1");
+            HUD.text = "Dps:\n " + Damage.ToString("F1");
         }
         if (CoinNeed != null)
         {
             CoinNeed.text = _upgradeneed.ToString();
         }
+        
     }
     public void Upgrade()
     {
         Checkcoin = StatusManager.Instance.GetCoin();
-      
+       
         if (Checkcoin >= _upgradeneed)
         {
             
+
             Upgradecount++;
             StatusManager.Instance.SetCoin(Checkcoin - _upgradeneed);
 
             if (!isSpawned)
             {
                 isSpawned = true;
-                mesh.enabled = true;
+                mesh.gameObject.SetActive(true);
                 if (attackRoutine != null) StopCoroutine(attackRoutine);
                 attackRoutine = StartCoroutine(Autoattack());
                 Debug.Log("Companion Purchased!");
@@ -139,7 +146,7 @@ public class Companionscript : MonoBehaviour
 
             // --- จุดที่แก้ไข ---
             // คำนวณราคาใหม่โดยปัดเศษขึ้นเสมอ เพื่อป้องกันราคาค้างที่ 1
-            float nextPrice = _upgradeneed * 1.22f;
+            float nextPrice = _upgradeneed * 1.2f;
 
             // ถ้าผลลัพธ์ใหม่เท่ากับค่าเดิม (กรณีราคาต่ำมาก) ให้บวกเพิ่มเอง 1
             if (Mathf.CeilToInt(nextPrice) <= _upgradeneed)
@@ -154,6 +161,16 @@ public class Companionscript : MonoBehaviour
 
             UpdateUI();
         }
+    }
+
+    public void AllIN()
+    {
+        Checkcoin = StatusManager.Instance.GetCoin();
+        while (Checkcoin > _upgradeneed)
+        {
+            Upgrade();
+        }
+        UpdateUI();
     }
     private void RefreshTarget()
     {
@@ -178,5 +195,29 @@ public class Companionscript : MonoBehaviour
     {
         GameEventBus.Unsubscribe(GameEventType.BossState, RefreshTarget);
         GameEventBus.Unsubscribe(GameEventType.Defeated, RefreshTarget);
+    }
+    public CompanionSaveData GetData()
+    {
+        return new CompanionSaveData
+        {
+            ID = this.companionID,
+            IsSpawn = this.isSpawned,
+            companiondamgage = this.Damage,
+            CompanionUpgradeneed = this._upgradeneed,
+            upgradeCount = this.Upgradecount,
+            bonus = this.bonus
+        };
+    }
+    public void LoadData(CompanionSaveData data)
+    {
+        if (mesh == null)
+            mesh = GetComponentInChildren<MeshRenderer>();
+        isSpawned = data.IsSpawn;
+        Damage = data.companiondamgage;
+        _upgradeneed = data.CompanionUpgradeneed;
+        Upgradecount = data.upgradeCount;
+        bonus = data.bonus;
+
+        mesh.gameObject.SetActive(isSpawned);
     }
 }

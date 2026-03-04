@@ -1,31 +1,35 @@
-using System;
+//using System;
+using System.Collections;
 using UnityEngine;
-using  UnityEngine.Pool;
+
 
 public class EnemyController : Observer
 {
     private MeshFilter targetMeshFilter;
-    public Mesh[] enemyModel;
+    public GameObject[] enemyModel;
     [SerializeField] private float BossHp=500;
     public float _maxhealth = 100;
     private float _enemyhealth;
     private int _currentIndexModel = 0;
-
+    private Animator _animator;
+    private static readonly int attackStateHash = Animator.StringToHash("Attacked");
+   
     public float EnemyHealth { get { return _enemyhealth; } set { _enemyhealth = value; } }
 
     // public IObjectPool<EnemyController> Pool { get;set; }
 
     private void Start()
     {
-        
+        _animator = GetComponent<Animator>();
         targetMeshFilter = GetComponent<MeshFilter>();
-        ChangeMesh(0);
+        ChangeMesh();
 
       
     }
 
     private void OnEnable()
     {
+       
         _enemyhealth = _maxhealth;
         GameEventBus.Subscribe(GameEventType.BossState, BossState);
         GameEventBus.Subscribe(GameEventType.Attacked, GotDamage);
@@ -41,50 +45,51 @@ public class EnemyController : Observer
     }
 
    
-    public void ChangeMesh(int index)
+    public void ChangeMesh()
     {
-        if (index >= 0 && index < enemyModel.Length)
-        {
-            targetMeshFilter.mesh = enemyModel[index];
-        }
+     
+        enemyModel[_currentIndexModel].SetActive(false);
+        _currentIndexModel = (_currentIndexModel + 1) % enemyModel.Length;
+        enemyModel[_currentIndexModel].SetActive(true);
     }
+
 
     private void GotDamage()
     {
+       
         TakeDamage(StatusManager.Instance.GetPlayerDamage());
     }
    private void Death()
 {
-    _currentIndexModel++;
+   /* _currentIndexModel++;
     if (_currentIndexModel >= enemyModel.Length)
     {
         _currentIndexModel = 0;
     }
-
+   */
     // เอาเรื่องรีเซ็ตเลือดออกจากตรงนี้ให้หมด! เพราะเราย้ายไปทำใน TakeDamage แล้ว
-    ChangeMesh(_currentIndexModel);
+    ChangeMesh();
     Debug.Log($"Monster Mesh Changed to: {_currentIndexModel}");
 }
     public void TakeDamage(float amount)
     {
-        // 1. ถ้าเลือดเป็น 0 หรือติดสถานะตายอยู่ ไม่รับดาเมจเพิ่ม
         if (_enemyhealth <= 0) return;
 
         _enemyhealth = Mathf.Max(0, _enemyhealth - amount);
         GameEventBus.Publish(GameEventType.EnemyDamaged);
-
+        _animator.Play(attackStateHash);
         if (_enemyhealth <= 0)
         {
             _enemyhealth = 0; // ล็อคเลือดไว้ที่ 0 ทันที
-
+            
             if (StatusManager.Instance.Enemycount == 0) // บอสตาย
             {
-                BossHp += BossHp * 0.4f;
-
-               
+                BossHp += BossHp * 0.2f;
+                GameEventBus.Publish(GameEventType.BossDefeated);
+                SaveData.Instance.SaveGame();
                 StatusManager.Instance.Enemycount = 1;
 
-                _maxhealth = BossHp * 0.6f;          // รีเซ็ตกลับไปมอนปกติ
+                _maxhealth = BossHp * 0.1f;          // รีเซ็ตกลับไปมอนปกติ
                 _enemyhealth = _maxhealth;
 
                 GameEventBus.Publish(GameEventType.EnemyDamaged);
@@ -126,5 +131,19 @@ public class EnemyController : Observer
 
         // ต้องมั่นใจว่า Publish หลังจากเซ็ตค่าข้างบนเสร็จแล้วเท่านั้น!
         GameEventBus.Publish(GameEventType.EnemyDamaged);
+    }
+    public EnemyData GetData()
+    {
+        return new EnemyData
+        {
+            BossHpData = BossHp,
+          enemyMaxHealth = _maxhealth,
+        };
+
+    }
+    public void LoadData(EnemyData data)
+    {
+        BossHp = data.BossHpData;
+        _maxhealth = data.enemyMaxHealth;
     }
 }
