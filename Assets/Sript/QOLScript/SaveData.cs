@@ -11,6 +11,7 @@ public class GameData
     public EnemyData enemy;
     public CoinData coin;
     public SceneData scenedata;
+    public VolumeData volumeData;
     public List<CompanionSaveData> companions;
 }
 [System.Serializable]
@@ -19,10 +20,10 @@ public class CompanionSaveData
     public int ID;
     public bool IsSpawn;
     public float companiondamgage;
-    public int CompanionUpgradeneed;
+    public long CompanionUpgradeneed;
     public int upgradeCount;
     public float bonus;
-
+    public int LevelCom;
   
 }
 [System.Serializable]
@@ -34,9 +35,10 @@ public class PlayerSaveData
 [System.Serializable]
 public class PlayerUpgradeData
 {
-    public int Upgradeneed;
+    public long Upgradeneed;
     public int Upgradecount;
-    public int Bonus;
+    public float Bonus;
+    public int LevelPlayer;
 }
 [System.Serializable]
 public class EnemyData
@@ -48,8 +50,8 @@ public class EnemyData
 [System.Serializable]
 public class CoinData
 {
-    public int coin;
-    public int DropcoinData;
+    public long coin;
+    public long DropcoinData;
 }
 [System.Serializable]
 public class SceneData
@@ -58,6 +60,12 @@ public class SceneData
     public int CurrentScene;
     public int CurrenIndexModel;
 
+}
+[System.Serializable]
+public class VolumeData
+{
+    public float OstVolume;
+    public float SfxVolume;
 }
 public class SaveData : Singletron<SaveData>
 {
@@ -104,7 +112,16 @@ public class SaveData : Singletron<SaveData>
         {
             data.enemy = enemy.GetData();
         }
-
+        UpgradeManager upgrade = FindFirstObjectByType<UpgradeManager>();
+        if (upgrade != null)
+        {
+            data.playerUpgrade = upgrade.GetData();
+        }
+        VolumeSetting volume = FindFirstObjectByType<VolumeSetting>();
+        if (volume != null)
+        {
+            data.volumeData = volume.GetData();
+        }
         data.companions = new List<CompanionSaveData>();
         foreach (var companion in Object.FindObjectsByType<Companionscript>(FindObjectsSortMode.None))
         {
@@ -137,6 +154,17 @@ public class SaveData : Singletron<SaveData>
         EnemyController enemy = FindFirstObjectByType<EnemyController>();
         if (enemy != null)
             enemy.LoadData(data.enemy);
+
+        UpgradeManager upgrade = FindFirstObjectByType<UpgradeManager>();
+        if (upgrade != null)
+        {
+            upgrade.LoadData(data.playerUpgrade);
+        }
+        VolumeSetting volume = FindFirstObjectByType<VolumeSetting>();
+        if (volume != null)
+        {
+            volume.LoadData(data.volumeData);
+        }
 
         foreach (var companion in Object.FindObjectsByType<Companionscript>(FindObjectsSortMode.None))
         {

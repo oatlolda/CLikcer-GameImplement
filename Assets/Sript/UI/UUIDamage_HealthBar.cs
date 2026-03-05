@@ -42,14 +42,26 @@ public class UIDamage_HealthBar : MonoBehaviour
 
         if (EnemyHp != null)
         {
-            if (enemyController.EnemyHealth >= 1000)
+            if (enemyController.EnemyHealth >= 1000000000f)
             {
+                // เช็คหลักล้านก่อน
+                EnemyHp.text = (enemyController.EnemyHealth / 1000000000f).ToString("F1") + "B";
+            }
+            else if (enemyController.EnemyHealth >= 1000000)
+            {
+                // เช็คหลักล้านก่อน
+                EnemyHp.text = (enemyController.EnemyHealth / 1000000f).ToString("F1") + "M";
+            }
+            else if (enemyController.EnemyHealth >= 1000)
+            {
+                // ถ้าไม่ถึงล้าน แต่ถึงพัน ให้ใช้ K
                 EnemyHp.text = (enemyController.EnemyHealth / 1000f).ToString("F1") + "K";
             }
+            
             else
-            {
-                EnemyHp.text = enemyController.EnemyHealth.ToString("F0");
-            }
+        {
+            EnemyHp.text = enemyController.EnemyHealth.ToString("F0");
+        }
         }
     }
     private void UpdateCount()

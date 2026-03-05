@@ -15,7 +15,7 @@ public class Damagenumber : MonoBehaviour
     {
         if (_damageNum == null) _damageNum = GetComponentInChildren<TextMeshPro>();
         _damageNum.color = Color.red;
-        _damageNum.text = StatusManager.Instance.GetPlayerDamage().ToString();
+        _damageNum.text = StatusManager.Instance.GetPlayerDamage().ToString("N0");
         _damageNum.fontSize = 5;
         _returned = false;
     }
@@ -45,15 +45,15 @@ public class Damagenumber : MonoBehaviour
     {
         if (isCritical)
         {
-            _damageNum.color = Color.white; // คริติคอลใช้สีแดงจะเด่นกว่า
-            _damageNum.text = StatusManager.Instance.GetCriticalDamage().ToString();
-            _damageNum.fontSize = 8; // ตัวใหญ่ขึ้น
+            _damageNum.color = Color.white; 
+            _damageNum.text = StatusManager.Instance.GetCriticalDamage().ToString("N0");
+            _damageNum.fontSize = 6; 
         }
         else
         {
             _damageNum.color = Color.red;
-            _damageNum.text = StatusManager.Instance.GetPlayerDamage().ToString();
-            _damageNum.fontSize = 5;
+            _damageNum.text = StatusManager.Instance.GetPlayerDamage().ToString("N0");
+            _damageNum.fontSize = 4;
         }
     }
     

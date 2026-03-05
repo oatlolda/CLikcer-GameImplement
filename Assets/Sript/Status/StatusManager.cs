@@ -114,7 +114,7 @@ public class StatusManager : Singletron<StatusManager>
         }
     }
    
-    public int GetCoin()
+    public long GetCoin()
     {
 
         if (_coinManagement == null)
@@ -130,7 +130,7 @@ public class StatusManager : Singletron<StatusManager>
         return 0;
         
     }
-    public void SetCoin(int amount)
+    public void SetCoin(long amount)
     {
         if (_coinManagement == null)
         {

@@ -5,7 +5,7 @@ public class ChagneScene : MonoBehaviour
 {
     public GameObject[] Map;
     private int _currentIndexModel;
-    public int _currentscene = 0;
+    public int _currentscene = 1;
     public TextMeshProUGUI SceneText;
     private AudioSource _audiosource;
     private void Start()

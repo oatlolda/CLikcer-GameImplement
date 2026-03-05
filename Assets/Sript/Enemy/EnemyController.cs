@@ -1,6 +1,7 @@
 //using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Events;
 
 
 public class EnemyController : Observer
@@ -16,6 +17,7 @@ public class EnemyController : Observer
    
     public float EnemyHealth { get { return _enemyhealth; } set { _enemyhealth = value; } }
 
+   
     // public IObjectPool<EnemyController> Pool { get;set; }
 
     private void Start()
@@ -80,8 +82,9 @@ public class EnemyController : Observer
         _animator.Play(attackStateHash);
         if (_enemyhealth <= 0)
         {
+
             _enemyhealth = 0; // ล็อคเลือดไว้ที่ 0 ทันที
-            
+    
             if (StatusManager.Instance.Enemycount == 0) // บอสตาย
             {
                 BossHp += BossHp * 0.2f;
@@ -106,6 +109,7 @@ public class EnemyController : Observer
                 // 2. *** สำคัญมาก *** ต้อง Publish หลังบรรทัดข้างบน เพื่อให้ UI เห็นค่าใหม่ที่ไม่ใช่ 0
                 GameEventBus.Publish(GameEventType.EnemyDamaged);
             }
+        
         }
     }
 

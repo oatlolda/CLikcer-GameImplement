@@ -16,14 +16,16 @@ public class Companionscript : MonoBehaviour
     public Button AllinBtn;
     public TextMeshProUGUI HUD;
     public TextMeshProUGUI CoinNeed;
+    public TextMeshProUGUI ShowLevel;
     private bool isSpawned = false;
     private MeshRenderer mesh;
     private Coroutine attackRoutine;
     
-    private int Checkcoin;
-    private int _upgradeneed=10;
+    private long Checkcoin;
+    private long _upgradeneed =10;
     private int Upgradecount = 0;
 
+    private int Level = 1;
     float bonus = 10;
 
     private void Awake()
@@ -100,11 +102,54 @@ public class Companionscript : MonoBehaviour
 
         if (HUD != null)
         {
-            HUD.text = "Dps:\n " + Damage.ToString("F1");
+            if (Damage >= 1000000000f)
+            {
+                // เช็คหลักล้านก่อน
+                HUD.text = "Dps:\n" + (Damage / 1000000000f).ToString("F1") + "b";
+            }
+            else if (Damage >= 1000000f)
+            {
+                // เช็คหลักล้านก่อน
+                HUD.text = "Dps:\n" + (Damage / 1000000f).ToString("F1") + "M";
+            }
+            else if (Damage >= 1000f)
+            {
+                // ถ้าไม่ถึงล้าน แต่ถึงพัน ให้ใช้ K
+                HUD.text = "Dps:\n" + (Damage / 1000f).ToString("F1") + "K";
+            }
+
+            else
+            {
+                HUD.text = "Dps:\n" + Damage.ToString("F0");
+            }
         }
         if (CoinNeed != null)
         {
-            CoinNeed.text = _upgradeneed.ToString();
+            if (_upgradeneed >= 1000000000)
+            {
+                // เช็คหลักล้านก่อน
+                CoinNeed.text = "need: " + (_upgradeneed / 1000000000f).ToString("F1") + "B";
+            }
+            else if (_upgradeneed >= 1000000)
+            {
+                // เช็คหลักล้านก่อน
+                CoinNeed.text = "need: " + (_upgradeneed / 1000000f).ToString("F1") + "M";
+            }
+            else if (Damage >= 1000)
+            {
+                // ถ้าไม่ถึงล้าน แต่ถึงพัน ให้ใช้ K
+                CoinNeed.text = "need: " + (_upgradeneed / 1000f).ToString("F1") + "K";
+            }
+
+            else
+            {
+                CoinNeed.text = "need: " + _upgradeneed.ToString("F0");
+            }
+            
+        }
+        if(ShowLevel != null)
+        {
+            ShowLevel.text = "Lvl: "+Level.ToString();
         }
         
     }
@@ -131,32 +176,34 @@ public class Companionscript : MonoBehaviour
             {
                 if (Upgradecount  < 10)
                 {
-                  
+                    _upgradeneed += 10;
                     Damage += bonus;
                 }
                 else
                 {
                     bonus += 20;
                     Damage += bonus;
+                    float nextPrice = _upgradeneed * 1.2f;
+
+                    // ถ้าผลลัพธ์ใหม่เท่ากับค่าเดิม (กรณีราคาต่ำมาก) ให้บวกเพิ่มเอง 1
+                    if ((long)System.Math.Round(nextPrice) <= _upgradeneed)
+                    {
+                        _upgradeneed += 1;
+                    }
+                    else
+                    {
+                        _upgradeneed = (long)System.Math.Round(nextPrice);
+                    }
                     Upgradecount = 0;
+                   
                     Debug.Log(Upgradecount);
                 }
               
             }
-
+            Level++;
             // --- จุดที่แก้ไข ---
             // คำนวณราคาใหม่โดยปัดเศษขึ้นเสมอ เพื่อป้องกันราคาค้างที่ 1
-            float nextPrice = _upgradeneed * 1.2f;
-
-            // ถ้าผลลัพธ์ใหม่เท่ากับค่าเดิม (กรณีราคาต่ำมาก) ให้บวกเพิ่มเอง 1
-            if (Mathf.CeilToInt(nextPrice) <= _upgradeneed)
-            {
-                _upgradeneed += 1;
-            }
-            else
-            {
-                _upgradeneed = Mathf.CeilToInt(nextPrice);
-            }
+           
             // ------------------
 
             UpdateUI();
@@ -165,10 +212,13 @@ public class Companionscript : MonoBehaviour
 
     public void AllIN()
     {
-        Checkcoin = StatusManager.Instance.GetCoin();
-        while (Checkcoin > _upgradeneed)
+        while (StatusManager.Instance.GetCoin() >= _upgradeneed)
         {
+            // 2. สั่งอัปเกรด (ในนี้มีการหักเงินจริงใน StatusManager แล้ว)
             Upgrade();
+
+            // 3. ป้องกัน Infinite Loop กรณีค่าอัปเกรดเป็น 0 หรือติดลบ (ถ้ามี)
+            if (_upgradeneed <= 0) break;
         }
         UpdateUI();
     }
@@ -205,7 +255,8 @@ public class Companionscript : MonoBehaviour
             companiondamgage = this.Damage,
             CompanionUpgradeneed = this._upgradeneed,
             upgradeCount = this.Upgradecount,
-            bonus = this.bonus
+            bonus = this.bonus,
+            LevelCom = this.Level
         };
     }
     public void LoadData(CompanionSaveData data)
@@ -217,7 +268,7 @@ public class Companionscript : MonoBehaviour
         _upgradeneed = data.CompanionUpgradeneed;
         Upgradecount = data.upgradeCount;
         bonus = data.bonus;
-
+        Level = data.LevelCom;
         mesh.gameObject.SetActive(isSpawned);
     }
 }

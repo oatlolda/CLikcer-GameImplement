@@ -1,13 +1,20 @@
 
+using System;
 using TMPro;
 using UnityEngine;
 
 public class CoinManagement : MonoBehaviour
 {
-    [SerializeField]private int _coin;
-    private int _dropcoin=60;
-
-    public int Coin { get { return _coin; } set { _coin = value; UpdateCoinText(); } }
+  
+    private long _dropcoin=60;
+   [SerializeField] private long _coin;
+    public long Coin
+    {
+        get => _coin;
+        set { _coin = Math.Max(0, value);
+            UpdateCoinText();
+        }
+    }
     public TextMeshProUGUI CoinText;
 
     private void Start()
@@ -29,7 +36,7 @@ public class CoinManagement : MonoBehaviour
     private void dropcoinincrease()
     {
         float Enemyhealth = StatusManager.Instance.GetEnemyMaxHealth();
-        _dropcoin = (int)(Enemyhealth * 0.6f);
+        _dropcoin = (int)(Enemyhealth * 0.8f);
         //if (StatusManager.Instance.Enemycount == 1)
        // {
         //    _dropcoin = 10;
@@ -38,6 +45,7 @@ public class CoinManagement : MonoBehaviour
     }
     private void increaseCoin()
     {
+      
         Coin += _dropcoin;
         dropcoinincrease();
 
@@ -45,17 +53,27 @@ public class CoinManagement : MonoBehaviour
    
     private void UpdateCoinText()
     {
-        if (_coin >= 1000) 
+        if (_coin >= 1000000000f)
         {
-            float coinK = _coin / 1000f;
-            CoinText.text = coinK.ToString("F1") +" K";
+            // เช็คหลักล้านก่อน
+            CoinText.text = (_coin / 1000000000f).ToString("F1") + "B";
         }
-        else if(_coin <0) _coin = 0;
+        else if (_coin >= 1000000)
+            {
+            // เช็คหลักล้านก่อน
+            CoinText.text =(_coin / 1000000f).ToString("F1") + "M";
+        }
+        else if (_coin >= 1000)
+        {
+            // ถ้าไม่ถึงล้าน แต่ถึงพัน ให้ใช้ K
+            CoinText.text =  (_coin / 1000f).ToString("F1") + "K";
+        }
+
         else
         {
-
-            CoinText.text = _coin.ToString();
+            CoinText.text =  _coin.ToString("F0");
         }
+        
        
     }
     public CoinData GetData()

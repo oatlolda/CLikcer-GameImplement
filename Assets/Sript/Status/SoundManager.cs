@@ -4,6 +4,7 @@ public class SoundManager : Singletron<SoundManager>
 {
     private AudioSource _audiosource;
     [SerializeField] private AudioClip _audioclip;
+    
     private void Start()
     {
         _audiosource = GetComponent<AudioSource>();
@@ -29,4 +30,5 @@ public class SoundManager : Singletron<SoundManager>
     {
         _audiosource.PlayOneShot(_audioclip);
     }
+  
 }
