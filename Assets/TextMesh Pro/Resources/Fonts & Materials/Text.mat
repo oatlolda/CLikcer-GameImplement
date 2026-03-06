@@ -21,12 +21,14 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Text
-  m_Shader: {fileID: -6465566751694194690, guid: 124c112a6e8f1a54e8b0870e881b56d8, type: 3}
+  m_Shader: {fileID: 4800000, guid: a02a7d8c237544f1962732b55a9aebf1, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
-  m_InvalidKeywords:
+  m_ValidKeywords:
   - OUTLINE_ON
+  m_InvalidKeywords:
+  - BEVEL_ON
+  - RATIOS_OFF
   m_LightmapFlags: 5
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -54,6 +56,10 @@ Material:
         m_Texture: {fileID: 28684132378477856, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _MaskTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _OutlineTex:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -73,19 +79,19 @@ Material:
     m_Ints: []
     m_Floats:
     - _Ambient: 0.5
-    - _Bevel: 0.5
+    - _Bevel: 0.511
     - _BevelAmount: 1
     - _BevelClamp: 0.482
-    - _BevelOffset: 0.018
+    - _BevelOffset: -0.23
     - _BevelRoundness: 1
     - _BevelType: 0
-    - _BevelWidth: 0.23
+    - _BevelWidth: 0.202
     - _BumpFace: 0
     - _BumpOutline: 0
     - _ColorMask: 15
     - _CullMode: 0
     - _Diffuse: 0.5
-    - _FaceDilate: 0.36
+    - _FaceDilate: 0.43
     - _FaceUVSpeedX: 0
     - _FaceUVSpeedY: 0
     - _GlowInner: 0.05
@@ -93,25 +99,28 @@ Material:
     - _GlowOuter: 0.05
     - _GlowPower: 0.75
     - _GradientScale: 10
-    - _LightAngle: 3.1416
+    - _LightAngle: 4.5
+    - _MaskEdgeSoftness: 0.01
+    - _MaskInverse: 0
     - _MaskSoftnessX: 0
     - _MaskSoftnessY: 0
+    - _MaskWipeControl: 0.5
     - _OutlineMode: 0
     - _OutlineSoftness: 0
     - _OutlineUVSpeedX: 0
     - _OutlineUVSpeedY: 0
-    - _OutlineWidth: 0.322
+    - _OutlineWidth: 0.067
     - _PerspectiveFilter: 0.875
     - _QueueControl: -1
     - _QueueOffset: 0
     - _Reflectivity: 10
-    - _ScaleRatioA: 0.9
-    - _ScaleRatioB: 0.73125
-    - _ScaleRatioC: 0.40725
+    - _ScaleRatioA: 1
+    - _ScaleRatioB: 0.41625
+    - _ScaleRatioC: 1
     - _ScaleX: 1
     - _ScaleY: 1
     - _ShaderFlags: 0
-    - _Sharpness: 0
+    - _Sharpness: 1
     - _SpecularPower: 2
     - _Stencil: 0
     - _StencilComp: 8
@@ -134,9 +143,10 @@ Material:
     - _EnvMatrixRotation: {r: 0, g: 0, b: 0, a: 0}
     - _FaceColor: {r: 1, g: 1, b: 1, a: 1}
     - _FaceUVSpeed: {r: 0, g: 0, b: 0, a: 0}
-    - _GlowColor: {r: 0, g: 1, b: 0, a: 0.5}
+    - _GlowColor: {r: 1, g: 1, b: 1, a: 0}
     - _IsoPerimeter: {r: 0.07, g: 0.42, b: 0, a: 0}
     - _MaskCoord: {r: 0, g: 0, b: 32767, a: 32767}
+    - _MaskEdgeColor: {r: 1, g: 1, b: 1, a: 1}
     - _OutlineColor: {r: 0, g: 0, b: 0, a: 1}
     - _OutlineColor1: {r: 0, g: 0, b: 0, a: 1}
     - _OutlineColor2: {r: 1, g: 1, b: 1, a: 1}

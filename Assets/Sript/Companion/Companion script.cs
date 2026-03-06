@@ -125,27 +125,9 @@ public class Companionscript : MonoBehaviour
         }
         if (CoinNeed != null)
         {
-            if (_upgradeneed >= 1000000000)
-            {
-                // เช็คหลักล้านก่อน
-                CoinNeed.text = "need: " + (_upgradeneed / 1000000000f).ToString("F1") + "B";
-            }
-            else if (_upgradeneed >= 1000000)
-            {
-                // เช็คหลักล้านก่อน
-                CoinNeed.text = "need: " + (_upgradeneed / 1000000f).ToString("F1") + "M";
-            }
-            else if (Damage >= 1000)
-            {
-                // ถ้าไม่ถึงล้าน แต่ถึงพัน ให้ใช้ K
-                CoinNeed.text = "need: " + (_upgradeneed / 1000f).ToString("F1") + "K";
-            }
+            UpdateText(_upgradeneed, CoinNeed, "need: ");
 
-            else
-            {
-                CoinNeed.text = "need: " + _upgradeneed.ToString("F0");
-            }
-            
+
         }
         if(ShowLevel != null)
         {
@@ -245,6 +227,23 @@ public class Companionscript : MonoBehaviour
     {
         GameEventBus.Unsubscribe(GameEventType.BossState, RefreshTarget);
         GameEventBus.Unsubscribe(GameEventType.Defeated, RefreshTarget);
+    }
+    public void UpdateText(float amount, TextMeshProUGUI text, string chat) // เปลี่ยนรับค่าเป็น long
+    {
+        string[] suffixes = { "", "K", "M", "B", "T", "Q" };
+        int suffixIndex = 0;
+        double display = amount;
+
+        // วนลูปหารทีละ 1000 จนกว่าค่าจะน้อยกว่า 1000 หรือหมด Array
+        while (display >= 1000 && suffixIndex < suffixes.Length - 1)
+        {
+            display /= 1000f;
+            suffixIndex++;
+        }
+
+        // ถ้าไม่มีหน่วย (หลักหน่วย-ร้อย) ไม่ต้องมีทศนิยม, ถ้ามีหน่วยให้มีทศนิยม 1 ตำแหน่ง
+        string format = (suffixIndex == 0) ? "F0" : "F1";
+        text.text = chat + display.ToString(format) + suffixes[suffixIndex];
     }
     public CompanionSaveData GetData()
     {

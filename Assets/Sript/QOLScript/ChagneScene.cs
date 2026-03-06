@@ -1,13 +1,15 @@
+using System;
 using TMPro;
 using UnityEngine;
 
 public class ChagneScene : MonoBehaviour
 {
     public GameObject[] Map;
-    private int _currentIndexModel;
+    [SerializeField]private int _currentIndexModel;
     public int _currentscene = 1;
     public TextMeshProUGUI SceneText;
     private AudioSource _audiosource;
+    public Material[] newSkybox;
     private void Start()
     {
         SceneText.text = _currentscene.ToString();
@@ -30,10 +32,12 @@ public class ChagneScene : MonoBehaviour
         {
             _audiosource.Play();
             Map[_currentIndexModel].SetActive(false);
-
+           
             _currentIndexModel = (_currentIndexModel + 1) % Map.Length;
-
+            
             Map[_currentIndexModel].SetActive(true);
+            RenderSettings.skybox = newSkybox[_currentIndexModel];
+            DynamicGI.UpdateEnvironment();
         }
     }
     public SceneData GetData()

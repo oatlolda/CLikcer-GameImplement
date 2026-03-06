@@ -47,8 +47,12 @@ public class PlayerAttackState : Subject,IPlayerState
             SoundManager.Instance.Playonetime();
         else
             SoundManager.Instance.PlaySound();
-
-        NotifyObservers();
+        EnemyController currentEnemy = Object.FindAnyObjectByType<EnemyController>();
+        if (currentEnemy != null  && IsCritical)
+        {
+           
+            NotifyObservers();
+        }
 
         _lastAttackTime = Time.time;
         _animator.Play(attackStateHash);

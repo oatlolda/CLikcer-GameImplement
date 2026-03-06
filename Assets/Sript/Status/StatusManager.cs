@@ -110,7 +110,7 @@ public class StatusManager : Singletron<StatusManager>
         if (Enemycount > 8)
         {
             Enemycount = 0;
-            GameEventBus.Publish(GameEventType.BossState);
+           // GameEventBus.Publish(GameEventType.BossState);
         }
     }
    

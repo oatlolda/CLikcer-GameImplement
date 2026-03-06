@@ -36,7 +36,7 @@ public class CoinManagement : MonoBehaviour
     private void dropcoinincrease()
     {
         float Enemyhealth = StatusManager.Instance.GetEnemyMaxHealth();
-        _dropcoin = (int)(Enemyhealth * 0.8f);
+        _dropcoin = (int)(Enemyhealth * 0.5f);
         //if (StatusManager.Instance.Enemycount == 1)
        // {
         //    _dropcoin = 10;
@@ -53,28 +53,25 @@ public class CoinManagement : MonoBehaviour
    
     private void UpdateCoinText()
     {
-        if (_coin >= 1000000000f)
+
+        UpdateText(_coin, CoinText, "");
+    }
+    public void UpdateText(float amount, TextMeshProUGUI text, string chat) // เปลี่ยนรับค่าเป็น long
+    {
+        string[] suffixes = { "", "K", "M", "B", "T", "Q" };
+        int suffixIndex = 0;
+        double display = amount;
+
+        // วนลูปหารทีละ 1000 จนกว่าค่าจะน้อยกว่า 1000 หรือหมด Array
+        while (display >= 1000 && suffixIndex < suffixes.Length - 1)
         {
-            // เช็คหลักล้านก่อน
-            CoinText.text = (_coin / 1000000000f).ToString("F1") + "B";
-        }
-        else if (_coin >= 1000000)
-            {
-            // เช็คหลักล้านก่อน
-            CoinText.text =(_coin / 1000000f).ToString("F1") + "M";
-        }
-        else if (_coin >= 1000)
-        {
-            // ถ้าไม่ถึงล้าน แต่ถึงพัน ให้ใช้ K
-            CoinText.text =  (_coin / 1000f).ToString("F1") + "K";
+            display /= 1000f;
+            suffixIndex++;
         }
 
-        else
-        {
-            CoinText.text =  _coin.ToString("F0");
-        }
-        
-       
+        // ถ้าไม่มีหน่วย (หลักหน่วย-ร้อย) ไม่ต้องมีทศนิยม, ถ้ามีหน่วยให้มีทศนิยม 1 ตำแหน่ง
+        string format = (suffixIndex == 0) ? "F0" : "F1";
+        text.text = chat + display.ToString(format) + suffixes[suffixIndex];
     }
     public CoinData GetData()
     {

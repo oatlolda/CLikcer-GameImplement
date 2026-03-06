@@ -99,59 +99,38 @@ public class UpgradeManager : MonoBehaviour
         if (PlayerDamageHUD != null)
         {
             float playerdamage = StatusManager.Instance.GetPlayerDamage();
-            if (playerdamage >= 1000000000f)
-            {
-                // เช็คหลักล้านก่อน
-                PlayerDamageHUD.text = "Dps:\n" + (playerdamage / 1000000000f).ToString("F1") + "B";
-            }
+            UpdateText(playerdamage, PlayerDamageHUD, "Dps:\n ");
 
-            else if (playerdamage >= 1000000)
-            {
-                // เช็คหลักล้านก่อน
-                PlayerDamageHUD.text = "Dps:\n" + (playerdamage / 1000000f).ToString("F1") + "M";
-            }
-            else if (playerdamage >= 1000)
-            {
-                // ถ้าไม่ถึงล้าน แต่ถึงพัน ให้ใช้ K
-                PlayerDamageHUD.text = "Dps:\n" + (playerdamage / 1000f).ToString("F1") + "K";
-            }
 
-            else
-            {
-                PlayerDamageHUD.text = "Dps:\n" + playerdamage.ToString("F0");
-            }
-
-          
         }
         if (CoinNeed != null)
         {
-            if (_coinupgrade >= 1000000000f)
-            {
-                // เช็คหลักล้านก่อน
-                CoinNeed.text = "need: " + (_coinupgrade / 1000000000f).ToString("F1") + "B";
-            }
-            else if (_coinupgrade >= 1000000)
-            {
-                // เช็คหลักล้านก่อน
-                CoinNeed.text = "need: " + (_coinupgrade / 1000000f).ToString("F1") + "M";
-            }
-            else if (_coinupgrade >= 1000)
-            {
-                // ถ้าไม่ถึงล้าน แต่ถึงพัน ให้ใช้ K
-                CoinNeed.text = "need: " + (_coinupgrade / 1000f).ToString("F1") + "K";
-            }
+            UpdateText(_coinupgrade, CoinNeed,"need: ");
 
-            else
-            {
-                CoinNeed.text = "need: " + _coinupgrade.ToString("F0");
-            }
-           
+
         }
         if(ShowLEvel != null)
         {
             ShowLEvel.text = "Lvl: " + Level.ToString();
         }
         SaveData.Instance.SaveGame();
+    }
+    public void UpdateText(float amount,TextMeshProUGUI text,string chat) // เปลี่ยนรับค่าเป็น long
+    {
+        string[] suffixes = { "", "K", "M", "B", "T", "Q" };
+        int suffixIndex = 0;
+        double display = amount;
+
+        // วนลูปหารทีละ 1000 จนกว่าค่าจะน้อยกว่า 1000 หรือหมด Array
+        while (display >= 1000 && suffixIndex < suffixes.Length - 1)
+        {
+            display /= 1000f;
+            suffixIndex++;
+        }
+
+        // ถ้าไม่มีหน่วย (หลักหน่วย-ร้อย) ไม่ต้องมีทศนิยม, ถ้ามีหน่วยให้มีทศนิยม 1 ตำแหน่ง
+        string format = (suffixIndex == 0) ? "F0" : "F1";
+        text.text = chat + display.ToString(format) + suffixes[suffixIndex];
     }
     public PlayerUpgradeData GetData()
     {

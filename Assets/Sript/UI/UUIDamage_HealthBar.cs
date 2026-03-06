@@ -1,4 +1,4 @@
-using System;
+ï»¿
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class UIDamage_HealthBar : MonoBehaviour
 {
 
-   public EnemyController enemyController;
+    public EnemyController enemyController;
     public Slider EnemyHealthBar;
     public TextMeshProUGUI EnemyHp;
     public TextMeshProUGUI EnemyCount;
@@ -17,7 +17,7 @@ public class UIDamage_HealthBar : MonoBehaviour
     }
     private void OnEnable()
     {
-        // Å§·ÐàºÕÂ¹ÇèÒ "¶éÒÁÕ¡ÒÃâ¨ÁµÕà¡Ô´¢Öé¹ ãËé©Ñ¹ÍÑ»à´µµÑÇàÅ¢´éÇÂ¹Ð"
+       
         GameEventBus.Subscribe(GameEventType.EnemyDamaged, UpdateUI);
         GameEventBus.Subscribe(GameEventType.Defeated, UpdateCount);
         GameEventBus.Subscribe(GameEventType.BossState, BossState);
@@ -42,27 +42,25 @@ public class UIDamage_HealthBar : MonoBehaviour
 
         if (EnemyHp != null)
         {
-            if (enemyController.EnemyHealth >= 1000000000f)
-            {
-                // àªç¤ËÅÑ¡ÅéÒ¹¡èÍ¹
-                EnemyHp.text = (enemyController.EnemyHealth / 1000000000f).ToString("F1") + "B";
-            }
-            else if (enemyController.EnemyHealth >= 1000000)
-            {
-                // àªç¤ËÅÑ¡ÅéÒ¹¡èÍ¹
-                EnemyHp.text = (enemyController.EnemyHealth / 1000000f).ToString("F1") + "M";
-            }
-            else if (enemyController.EnemyHealth >= 1000)
-            {
-                // ¶éÒäÁè¶Ö§ÅéÒ¹ áµè¶Ö§¾Ñ¹ ãËéãªé K
-                EnemyHp.text = (enemyController.EnemyHealth / 1000f).ToString("F1") + "K";
-            }
-            
-            else
+            UpdateHPText(enemyController.EnemyHealth);
+        }
+    }
+    public void UpdateHPText(float health) // à¹€à¸›à¸¥à¸µà¹ˆà¸¢à¸™à¸£à¸±à¸šà¸„à¹ˆà¸²à¹€à¸›à¹‡à¸™ long
+    {
+        string[] suffixes = { "", "K", "M", "B", "T", "Q" };
+        int suffixIndex = 0;
+        double displayHealth = health;
+
+        // à¸§à¸™à¸¥à¸¹à¸›à¸«à¸²à¸£à¸—à¸µà¸¥à¸° 1000 à¸ˆà¸™à¸à¸§à¹ˆà¸²à¸„à¹ˆà¸²à¸ˆà¸°à¸™à¹‰à¸­à¸¢à¸à¸§à¹ˆà¸² 1000 à¸«à¸£à¸·à¸­à¸«à¸¡à¸” Array
+        while (displayHealth >= 1000 && suffixIndex < suffixes.Length - 1)
         {
-            EnemyHp.text = enemyController.EnemyHealth.ToString("F0");
+            displayHealth /= 1000f;
+            suffixIndex++;
         }
-        }
+
+        // à¸–à¹‰à¸²à¹„à¸¡à¹ˆà¸¡à¸µà¸«à¸™à¹ˆà¸§à¸¢ (à¸«à¸¥à¸±à¸à¸«à¸™à¹ˆà¸§à¸¢-à¸£à¹‰à¸­à¸¢) à¹„à¸¡à¹ˆà¸•à¹‰à¸­à¸‡à¸¡à¸µà¸—à¸¨à¸™à¸´à¸¢à¸¡, à¸–à¹‰à¸²à¸¡à¸µà¸«à¸™à¹ˆà¸§à¸¢à¹ƒà¸«à¹‰à¸¡à¸µà¸—à¸¨à¸™à¸´à¸¢à¸¡ 1 à¸•à¸³à¹à¸«à¸™à¹ˆà¸‡
+        string format = (suffixIndex == 0) ? "F0" : "F1";
+        EnemyHp.text = displayHealth.ToString(format) + suffixes[suffixIndex];
     }
     private void UpdateCount()
     {
@@ -73,23 +71,22 @@ public class UIDamage_HealthBar : MonoBehaviour
         if (currentCount == 0)
         {
             EnemyCount.text = "Boss Stage";
+            GameEventBus.Publish(GameEventType.BossState);
         }
         else
         {
             EnemyCount.text = currentCount.ToString() + "/8";
         }
 
-        // --- à¾ÔèÁºÃÃ·Ñ´¹Õé ---
-        // ºÑ§¤ÑºÍÑ»à´µ UI ·Ñ¹·ÕËÅÑ§¨Ò¡¹ÑºáµéÁàÊÃç¨ à¾×èÍ´Ö§àÅ×Í´ÁÍ¹µÑÇãËÁèÁÒâªÇì
+      
         UpdateUI();
     }
     private void BossState()
     {
         EnemyCount.text = "Boss Stage";
 
-        // ãªé Invoke ËÃ×ÍÃÍàÅç¡¹éÍÂà¾×èÍãËéÁÑè¹ã¨ÇèÒ EnemyController à«çµ¤èÒ BossHp àÊÃç¨áÅéÇ¨ÃÔ§æ
+       
         Invoke("UpdateUI", 0.05f);
 
     }
-
 }
